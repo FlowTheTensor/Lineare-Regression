@@ -123,6 +123,7 @@ Die Schrittweite ist die **Lernrate η** (0,01 · 0,1 · 0,5 · 0,8 · 1,2). Ist
 | runde Griffe ziehen | Gerade von Hand verschieben und kippen (Verfahren ①) |
 | Klick ins Diagramm | Prognose für diesen x-Wert (ziehbar), **Esc** blendet sie aus |
 | Maus über einem Punkt | Messwerte und Residuum dieses Punkts |
+| Mond / Sonne oben rechts | dunkles oder helles Farbschema; die Wahl wird im Browser gespeichert und gilt für alle Lernsituationen |
 
 **Einstellungen:** Verfahren, Lernrate η, Tempo, Schwerpunkt $(\bar{x} \mid \bar{y})$ einblenden, Ausreißer einfügen, beste Gerade zum Vergleich. Unter dem Diagramm lassen sich die Residuen und die Fehlerquadrate einblenden. Unten rechts zeigen zwei Felder die Fehlersumme (im Vergleich bzw. je Lernschritt) und die Residuen. „Neue Messdaten“ erzeugt einen neuen Datensatz mit demselben Zusammenhang (nicht beim Skript-Beispiel), „CSV speichern“ lädt die Daten herunter (z. B. für Excel oder Python).
 
@@ -151,6 +152,7 @@ Die Schrittweite ist die **Lernrate η** (0,01 · 0,1 · 0,5 · 0,8 · 1,2). Ist
 | `ui.js` | Knöpfe, Auswahllisten, Kästchen |
 | `sketch.js` | Layout, Ablauf, Zeichnen, Erklärtexte |
 | `assets/logo-jps.png` | Logo der Jakob-Preh-Schule |
+| `assets/logo-jps-hell.png` | Logo in Weiß für das dunkle Farbschema |
 | `libraries/p5.min.js` | p5.js (lokal, damit die Seite auch offline läuft) |
 
 Ein weiteres Beispiel lässt sich ergänzen, indem man in `daten.js` einen Eintrag in `SZENARIEN` hinzufügt (zwei Merkmale, „wahre“ Steigung und Achsenabschnitt, Streuung, Anzahl – oder feste Daten unter `fest` –, Ausreißer, optional eine Grenzlinie, Wörter für die Texte). Es erscheint dann automatisch als weiterer Reiter in der Beispiel-Leiste. Die „wahre“ Gerade dient nur zum Erzeugen der Daten – das Verfahren kennt sie nicht, es sieht nur die Messpunkte.
@@ -167,6 +169,7 @@ Am einfachsten in VS Code mit der Erweiterung **Live Server**: Rechtsklick auf `
 - Fehler in `draw()` werden abgefangen und als Hinweis angezeigt, statt das Programm einzufrieren.
 - Jeder Datensatz wird mit festem Startwert erzeugt und ist deshalb bei jedem Start gleich. Erst „Neue Messdaten“ würfelt neu.
 - Diese Seite war die Vorlage für die KI-Klassifikations-Seiten (Logistische Regression, kNN, Naiver Bayes, Entscheidungsbaum). Layout und Bedienung sind gleich, nur steckt hier alles in `sketch.js` statt in einer gemeinsamen `basis.js`.
+- **Farbschema hell/dunkel:** Alle Farben stehen in zwei Paletten (`FARBE_HELL`, `FARBE_DUNKEL`); `FARBE` enthält die aktive Palette und wird beim Umschalten in place überschrieben. Die CSS-Variablen in `style.css` wechseln über die Klasse `dunkelmodus` am `<html>`-Element. Die Wahl steht im `localStorage` unter `jps-lernsituationen-farbschema` (ohne Speicher gilt die Systemeinstellung). Im dunklen Schema zeigt die Kopfzeile `assets/logo-jps-hell.png`.
 
 ## Lizenz
 
@@ -188,5 +191,5 @@ Vorschlag für die Namensnennung: *„KI-Prognose · Lineare Regression“ von C
 |---|---|
 | `libraries/p5.min.js` | [p5.js](https://p5js.org), GNU LGPL 2.1 |
 | `libraries/p5.sound.min.js` | [p5.sound](https://p5js.org/reference/p5.sound/), GNU LGPL 2.1 |
-| `assets/logo-jps.png` | Logo der Jakob-Preh-Schule – alle Rechte bei der Schule |
+| `assets/logo-jps.png`, `assets/logo-jps-hell.png` | Logo der Jakob-Preh-Schule – alle Rechte bei der Schule |
 | Schriften Quicksand, Inter, JetBrains Mono | über Google Fonts eingebunden, SIL Open Font License 1.1 |

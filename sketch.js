@@ -81,8 +81,8 @@ const KOPF_H = 34; // Höhe der Panel-Überschrift
 
 const PLOT = { x: 104, y: 134, w: 700, h: 612 };
 
-// Farben nach dem Corporate Design der Jakob-Preh-Schule (bsnes.de)
-const FARBE = {
+// Farben (hell und dunkel) nach dem Corporate Design der Jakob-Preh-Schule (bsnes.de)
+const FARBE_HELL = {
   papier: [251, 249, 245],
   flaeche: [255, 255, 255],
   flaeche2: [243, 238, 230],
@@ -96,7 +96,75 @@ const FARBE = {
   blau: [44, 92, 150],
   gruen: [52, 128, 84],
   neutral: [160, 155, 146],
+  // Flächen und Schrift auf Flächen (für das dunkle Schema nötig)
+  textInvers: [255, 255, 255],
+  dunkelFlaeche: [29, 29, 28],
+  schatten: [29, 29, 28],
+  akzentFlaeche: [253, 240, 242],
+  akzentLinie: [240, 200, 208],
+  rotFlaeche: [251, 225, 230],
+  gruenFlaeche: [228, 241, 233],
 };
+
+const FARBE_DUNKEL = {
+  papier: [22, 22, 21],
+  flaeche: [32, 31, 30],
+  flaeche2: [44, 42, 40],
+  linie: [62, 59, 55],
+  text: [236, 232, 224],
+  grau: [184, 178, 168],
+  blass: [140, 135, 126],
+  akzent: [236, 76, 98],
+  akzentHell: [255, 64, 92],
+  senf: [222, 166, 72],
+  blau: [104, 156, 222],
+  gruen: [96, 186, 132],
+  neutral: [120, 116, 108],
+  textInvers: [22, 22, 21],
+  dunkelFlaeche: [70, 67, 62],
+  schatten: [0, 0, 0],
+  akzentFlaeche: [52, 27, 32],
+  akzentLinie: [104, 44, 56],
+  rotFlaeche: [72, 32, 40],
+  gruenFlaeche: [30, 54, 41],
+};
+
+const FARBE = {};
+
+// --- Farbschema hell/dunkel ---------------------------------------------------
+// FARBE enthält immer die aktive Palette. Beim Umschalten werden die Arrays
+// in place überschrieben, damit Verweise wie [FARBE.blau, …] gültig bleiben.
+// Die Wahl gilt für alle Lernsituationen (gleicher localStorage-Schlüssel).
+const FARBSCHEMA_SCHLUESSEL = "jps-lernsituationen-farbschema";
+let dunkelModus = false;
+
+function setzeFarbschema(dunkel) {
+  dunkelModus = !!dunkel;
+  const quelle = dunkelModus ? FARBE_DUNKEL : FARBE_HELL;
+  for (const k in quelle) {
+    if (FARBE[k]) {
+      FARBE[k].splice(0, FARBE[k].length, ...quelle[k]);
+    } else {
+      FARBE[k] = quelle[k].slice();
+    }
+  }
+  document.documentElement.classList.toggle("dunkelmodus", dunkelModus);
+}
+
+function gespeichertesFarbschema() {
+  try {
+    const v = localStorage.getItem(FARBSCHEMA_SCHLUESSEL);
+    if (v === "dunkel" || v === "hell") {
+      return v === "dunkel";
+    }
+  } catch (e) {
+    // kein Speicher verfügbar (z. B. privater Modus) – Systemeinstellung nehmen
+  }
+  return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+}
+
+setzeFarbschema(gespeichertesFarbschema());
+
 
 const TEMPO = {
   langsam: { anim: 450, pause: 650, proFrame: 1 },
@@ -547,7 +615,7 @@ function mausY() {
 // Karte im Stil der Schule: weiße Fläche, feine Linie, Titel mit rotem Punkt
 function panel(p) {
   noStroke();
-  fill(29, 29, 28, 10);
+  fill(...FARBE.schatten, 10);
   rect(p.x + 1, p.y + 3, p.w, p.h, 12);
   fill(...FARBE.flaeche);
   stroke(...FARBE.linie);
@@ -615,9 +683,9 @@ function zeichneKopf() {
 // Beispiel (HTML-Knöpfe, siehe ui.js). Gleiches Schema in allen PW-Programmen.
 function zeichneBeispielLeiste() {
   noStroke();
-  fill(253, 240, 242);
+  fill(...FARBE.akzentFlaeche);
   rect(0, 56, W, LEISTE);
-  stroke(240, 200, 208);
+  stroke(...FARBE.akzentLinie);
   strokeWeight(1);
   line(0, 56 + LEISTE, W, 56 + LEISTE);
   noStroke();
@@ -770,7 +838,7 @@ function marke(s, x, y, farbe, ausrichtung) {
   const w = textWidth(s) + 12;
   const lx = ausrichtung === RIGHT ? x - w : ausrichtung === CENTER ? x - w / 2 : x;
   noStroke();
-  fill(255, 240);
+  fill(...FARBE.flaeche, 240);
   stroke(...farbe);
   strokeWeight(1.2);
   rect(lx, y - 10, w, 20, 6);
@@ -818,7 +886,7 @@ function zeichneDatenPanel() {
   for (let i = 0; i <= anzX; i++) {
     const v = m1.min + i * m1.gitter;
     const [gx] = zuPlot(v, m2.min);
-    stroke(0, 0, 0, 25);
+    stroke(...FARBE.text, 25);
     strokeWeight(1);
     line(gx, PLOT.y, gx, PLOT.y + PLOT.h);
     noStroke();
@@ -830,7 +898,7 @@ function zeichneDatenPanel() {
   for (let i = 0; i <= anzY; i++) {
     const v = m2.min + i * m2.gitter;
     const [, gy] = zuPlot(m1.min, v);
-    stroke(0, 0, 0, 25);
+    stroke(...FARBE.text, 25);
     line(PLOT.x, gy, PLOT.x + PLOT.w, gy);
     noStroke();
     fill(...FARBE.grau);
@@ -921,12 +989,12 @@ function zeichneDatenPanel() {
       f = (p.x - ols.xq) * (p.y - ols.yq) >= 0 ? FARBE.akzent : FARBE.blau;
     }
     if (p.ausreisser) {
-      stroke(255);
+      stroke(...FARBE.flaeche);
       strokeWeight(1.5);
       fill(...FARBE.senf);
       triangle(px, py - 8, px + 7.5, py + 5, px - 7.5, py + 5);
     } else {
-      stroke(255);
+      stroke(...FARBE.flaeche);
       strokeWeight(1.3);
       fill(f[0], f[1], f[2], 230);
       circle(px, py, 11);
@@ -937,9 +1005,9 @@ function zeichneDatenPanel() {
   if (zeigeMitte) {
     const [mx, my] = zuPlot(ols.xq, ols.yq);
     noStroke();
-    fill(29, 29, 28, 40);
+    fill(...FARBE.schatten, 40);
     circle(mx + 1, my + 2, 26);
-    fill(255);
+    fill(...FARBE.flaeche);
     stroke(...FARBE.senf);
     strokeWeight(3.5);
     circle(mx, my, 22);
@@ -982,9 +1050,9 @@ function zeichneDatenPanel() {
     for (let i = 0; i < 2; i++) {
       const [px, py] = zuPlot(gx[i], prognose(gerade, gx[i]));
       noStroke();
-      fill(29, 29, 28, 40);
+      fill(...FARBE.schatten, 40);
       circle(px + 1, py + 2, 28);
-      fill(255);
+      fill(...FARBE.flaeche);
       stroke(...FARBE.akzent);
       strokeWeight(i === aktiv ? 4.5 : 3.5);
       circle(px, py, i === aktiv ? 28 : 24);
@@ -1020,7 +1088,7 @@ function zeichneDatenPanel() {
     line(px, PLOT.y + PLOT.h, px, py);
     line(PLOT.x, py, px, py);
     gestrichelt(false);
-    stroke(255);
+    stroke(...FARBE.flaeche);
     strokeWeight(2);
     fill(...FARBE.text);
     zeichneStern(px, py, 13);
@@ -1082,7 +1150,7 @@ function zeichneLegende() {
   x -= breite;
   for (const e of eintraege) {
     if (e.art === "punkt") {
-      stroke(255);
+      stroke(...FARBE.flaeche);
       strokeWeight(1.3);
       fill(...FARBE.blau);
       circle(x + 6, y, 11);
@@ -1123,7 +1191,7 @@ function zeichnePlotBanner() {
   textSize(14);
   const b = textWidth(s) + 28;
   noStroke();
-  fill(...(phase === "divergiert" ? [...FARBE.akzent, 235] : [29, 29, 28, 225]));
+  fill(...(phase === "divergiert" ? [...FARBE.akzent, 235] : [...FARBE.dunkelFlaeche, 225]));
   rect(PLOT.x + PLOT.w / 2 - b / 2, PLOT.y + 14, b, 32, 16);
   fill(255);
   textAlign(CENTER, CENTER);
@@ -1635,7 +1703,7 @@ function zeichneTooltip() {
   const w = textWidth(s) + 18;
   const tx = Math.min(mx + 14, W - w - 10);
   noStroke();
-  fill(29, 29, 28, 235);
+  fill(...FARBE.dunkelFlaeche, 235);
   rect(tx, my + 14, w, 26, 6);
   fill(255);
   textAlign(LEFT, CENTER);

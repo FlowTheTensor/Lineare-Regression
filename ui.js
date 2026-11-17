@@ -43,7 +43,8 @@ function erstelleUi() {
   huelle.addClass("huelle");
 
   // --- Kopfzeile -------------------------------------------------------------
-  ui.logo = platziere(createImg("assets/logo-jps.png", "Logo der Jakob-Preh-Schule"), 14, 3, 122, "logo");
+  ui.logo = platziere(createImg(logoPfad(), "Logo der Jakob-Preh-Schule"), 14, 3, 122, "logo");
+  erstelleFarbschemaKnopf();
 
   // Beispiel-Leiste: ein Reiter je Beispiel (Reihenfolge wie in daten.js)
   ui.beispiele = {};
@@ -60,10 +61,10 @@ function erstelleUi() {
     bx += b + 10;
   });
 
-  ui.neueDaten = platziere(createButton("Neue Messdaten"), 1270, 12, 150, "kopf");
+  ui.neueDaten = platziere(createButton("Neue Messdaten"), 1230, 12, 150, "kopf");
   ui.neueDaten.mousePressed(neueMessdaten);
 
-  ui.csv = platziere(createButton("CSV speichern"), 1428, 12, 148, "kopf");
+  ui.csv = platziere(createButton("CSV speichern"), 1388, 12, 148, "kopf");
   ui.csv.mousePressed(csvSpeichern);
 
   // --- unter dem Diagramm ----------------------------------------------------
@@ -209,4 +210,46 @@ function aktualisiereUi() {
   for (const el of [ui.verfahren, ui.ausreisser, ui.neueDaten, ui.neu]) {
     sperre(el, laufAuto);
   }
+}
+
+// --- Schalter hell/dunkel rechts in der Kopfzeile (gleich in allen LS) --------
+const SYMBOL_MOND =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+const SYMBOL_SONNE =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>';
+
+function logoPfad() {
+  return dunkelModus ? "assets/logo-jps-hell.png" : "assets/logo-jps.png";
+}
+
+function erstelleFarbschemaKnopf() {
+  ui.farbschema = platziere(createButton(""), 1544, 12, 32, "kopf", "farbschema");
+  ui.farbschema.mousePressed(() => {
+    wechsleFarbschema();
+    ui.farbschema.elt.blur();
+  });
+  aktualisiereFarbschemaKnopf();
+}
+
+function aktualisiereFarbschemaKnopf() {
+  if (ui.logo) {
+    ui.logo.elt.src = logoPfad();
+  }
+  if (!ui.farbschema) {
+    return;
+  }
+  ui.farbschema.html(dunkelModus ? SYMBOL_SONNE : SYMBOL_MOND);
+  const titel = dunkelModus ? "Zum hellen Farbschema wechseln" : "Zum dunklen Farbschema wechseln";
+  ui.farbschema.attribute("title", titel);
+  ui.farbschema.attribute("aria-label", titel);
+}
+
+function wechsleFarbschema() {
+  setzeFarbschema(!dunkelModus);
+  try {
+    localStorage.setItem(FARBSCHEMA_SCHLUESSEL, dunkelModus ? "dunkel" : "hell");
+  } catch (e) {
+    // ohne Speicher gilt die Wahl nur bis zum Neuladen
+  }
+  aktualisiereFarbschemaKnopf();
 }
